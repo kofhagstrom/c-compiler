@@ -1,9 +1,10 @@
 module Main (main) where
 
-import Lib (lexer)
+import Lexer (lexer)
+import Parser (parseLexing)
 
 main :: IO ()
 main = do
   filePath <- getLine
   contents <- readFile filePath
-  print . lexer . unwords . words $ contents
+  print . parseLexing . lexer . unwords . words $ contents

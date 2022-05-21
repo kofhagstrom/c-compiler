@@ -1,9 +1,11 @@
-module Lib
+module Lexer
   ( lexer,
+    Token (..),
   )
 where
 
 import Data.Char (isAlphaNum, isDigit)
+import Data.Type.Bool (If)
 
 data Token
   = OpenBrace
@@ -14,8 +16,12 @@ data Token
   | Equality
   | KeywordInt
   | Return
+  | If
+  | Else
+  | While
   | Identifier String
   | IntegerLiteral Int
+  | InvalidToken
   deriving (Eq, Show)
 
 lexer :: String -> [Token]
@@ -30,6 +36,7 @@ lexer string
   | char == '=' = Equality : lexer rest
   | isDigit char = lexIntegerLiteral string
   | isAlphaNum char = lexIdentifier string
+  | otherwise = InvalidToken : lexer rest
   where
     (char : rest) = string
 
@@ -42,6 +49,9 @@ lexIdentifier :: String -> [Token]
 lexIdentifier string = case prefix of
   "return" -> Return : lexer suffix
   "int" -> KeywordInt : lexer suffix
+  "if" -> If : lexer suffix
+  "else" -> Else : lexer suffix
+  "while" -> While : lexer suffix
   _ -> Identifier prefix : lexer suffix
   where
     (prefix, suffix) = span isAlphaNum string
