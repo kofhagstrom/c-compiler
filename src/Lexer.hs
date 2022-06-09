@@ -1,14 +1,14 @@
 module Lexer
   ( lexer,
     Token (..),
+    TokenType (..),
   )
 where
 
 import Data.Char (isAlphaNum, isDigit)
 import Data.Type.Bool (If)
 
-data Token
-  = OpenBrace
+data TokenType = OpenBrace
   | CloseBrace
   | OpenParenthesis
   | CloseParenthesis
@@ -19,39 +19,40 @@ data Token
   | If
   | Else
   | While
-  | Identifier String
-  | IntegerLiteral Int
-  | InvalidToken
-  deriving (Eq, Show)
+  | Identifier
+  | IntegerLiteral
+  | InvalidToken deriving (Show)
+
+data Token = Token {tokenType::TokenType, valueString :: String} deriving (Show)
 
 lexer :: String -> [Token]
 lexer string
   | null string = []
   | char == ' ' = lexer rest
-  | char == '{' = OpenBrace : lexer rest
-  | char == '}' = CloseBrace : lexer rest
-  | char == '(' = OpenParenthesis : lexer rest
-  | char == ')' = CloseParenthesis : lexer rest
-  | char == ';' = SemiColon : lexer rest
-  | char == '=' = Equality : lexer rest
+  | char == '{' = (Token OpenBrace "{"): lexer rest
+  | char == '}' = (Token CloseBrace "}"): lexer rest
+  | char == '(' = (Token OpenParenthesis "(") : lexer rest
+  | char == ')' = (Token CloseParenthesis ")") : lexer rest
+  | char == ';' = (Token SemiColon ";") : lexer rest
+  | char == '=' = (Token Equality "=") : lexer rest
   | isDigit char = lexIntegerLiteral string
   | isAlphaNum char = lexIdentifier string
-  | otherwise = InvalidToken : lexer rest
+  | otherwise = (Token InvalidToken string): lexer rest
   where
     (char : rest) = string
 
 lexIntegerLiteral :: String -> [Token]
-lexIntegerLiteral string = IntegerLiteral (read prefix :: Int) : lexer suffix
+lexIntegerLiteral string = (Token IntegerLiteral prefix) : lexer suffix
   where
     (prefix, suffix) = span isAlphaNum string
 
 lexIdentifier :: String -> [Token]
 lexIdentifier string = case prefix of
-  "return" -> Return : lexer suffix
-  "int" -> KeywordInt : lexer suffix
-  "if" -> If : lexer suffix
-  "else" -> Else : lexer suffix
-  "while" -> While : lexer suffix
-  _ -> Identifier prefix : lexer suffix
+  "return" -> (Token Return "return") : lexer suffix
+  "int" -> (Token KeywordInt "int"): lexer suffix
+  "if" -> (Token If "if") : lexer suffix
+  "else" -> (Token Else "else") : lexer suffix
+  "while" -> (Token While "while") : lexer suffix
+  _ -> (Token Identifier prefix) : lexer suffix
   where
     (prefix, suffix) = span isAlphaNum string

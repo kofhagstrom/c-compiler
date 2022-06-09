@@ -3,8 +3,8 @@ module Main (main) where
 import Lexer (lexer)
 import Parser (parseLexing)
 
+lexFileContent :: String -> IO ()
+lexFileContent = print . parseLexing . lexer . unwords . words
+
 main :: IO ()
-main = do
-  filePath <- getLine
-  contents <- readFile filePath
-  print . parseLexing . lexer . unwords . words $ contents
+main = getLine >>= readFile >>= lexFileContent
