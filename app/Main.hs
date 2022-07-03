@@ -7,4 +7,10 @@ lexFileContent :: String -> IO ()
 lexFileContent = print . parseLexing . lexer . unwords . words
 
 main :: IO ()
-main = getLine >>= readFile >>= lexFileContent
+main = do
+    filePath <- getLine
+    fileContents <- readFile filePath
+    lexFileContent fileContents
+
+main' :: IO()
+main' = getLine >>= readFile >>= lexFileContent
